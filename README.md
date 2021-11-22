@@ -44,3 +44,20 @@ $ ./layer_download_minimum.sh library/ubuntu 16.04 registry-1.docker.io fb15d46c
 
 **NOTE: the output will be very similar to what is output from the `docker_pull.sh` script, but it
 will only download the single blob specified in the 4th argument to the script.**
+
+## Packet Capture
+
+In order to accomplish this, you will need to run multiple terminal sessions on the same client
+machine. This can be accomplished by running `tmux` or `ssh`'ing into the same server twice. This
+ensures you can capture both tool's output accurately.
+
+First, start `tcpdump` by running `sudo tcpdump host registry-1.docker.io or
+production.cloudflare.docker.com or auth.docker.io | tee -a tcpdump.log`. This will capture all packets between the
+client (you) and Docker Hub Registry, the auth url for Docker Hub Registry, and the Cloudflare
+domain that Docker Hub uses for serving Docker Image layers.
+
+Then, run whatever `docker_pull.sh` or `layer_download_minimum.sh` script you want. After it
+completes, press `CTRL-C` in the terminal running `tcpdump` as it needs to be told to stop capturing packets.
+
+Finally, make sure to zip up both `.log` files (one for the download script output, one for the tcpdump
+output) if you are providing this as output to a Docker employee.
