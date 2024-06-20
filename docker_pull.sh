@@ -96,10 +96,9 @@ function download_blobs() {
   for blob_digest in $(printf "%s" "$final_manifest" | jq -r '.layers[].digest')
   do
     echo "$sep blob_digest: $blob_digest $sep" | tee -a "$log_file"
-    curl -skvo /dev/null "https://${registry}/v2/${image}/blobs/${blob_digest}" -H "Authorization: Bearer ${token}" -H "Connection: close" -H "Accept-Encoding: identity" -w "content_type: %{content_type}\nhttp_code: %{http_code}\nhttp_connect: %{http_connect}\nhttp_version: %{http_version}\nnum_connects: %{num_connects}\nnum_redirects: %{num_redirects}\nproxy_ssl_verify_result: %{proxy_ssl_verify_result}\nredirect_url: %{redirect_url}\nremote_ip: %{remote_ip}\nscheme: %{scheme}\nsize_download: %{size_download}\nsize_header: %{size_header}\nsize_request: %{size_request}\nsize_upload: %{size_upload}\nspeed_download: %{speed_download}\nspeed_upload: %{speed_upload}\nssl_verify_result: %{ssl_verify_result}\ntime_appconnect: %{time_appconnect}\ntime_connect: %{time_connect}\ntime_namelookup: %{time_namelookup}\ntime_pretransfer: %{time_pretransfer}\ntime_redirect: %{time_redirect}\ntime_starttransfer: %{time_starttransfer}\ntime_total: %{time_total}\nurl_effective: %{url_effective}\n" -vsSL 2>&1 | sed 's/Authorization: Bearer [A-Za-z0-9_\.-]*/Authorization: Bearer \<redacted\>/' | tee -a "$log_file"
+    curl -sSLkvo /dev/null "https://${registry}/v2/${image}/blobs/${blob_digest}" -H "Authorization: Bearer ${token}" -H "Connection: close" -H "Accept-Encoding: identity" -w 'DNS Lookup: %{time_namelookup}s\nConnect: %{time_connect}s\nStart Transfer: %{time_starttransfer}s\nTotal Time: %{time_total}s\n' 2>&1 | sed 's/Authorization: Bearer [A-Za-z0-9_\.-]*/Authorization: Bearer \<redacted\>/' | tee -a "$log_file"
   done
 }
-
 
 log_tool_versions
 get_bearer_and_service
